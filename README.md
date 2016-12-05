@@ -11,7 +11,7 @@ After:
 
     <img src="/thumb/300x200/fit/image/full-res-image.jpg">
     
-The first time a thumb is requested, the image will not be present so .htaccess will call `create.php`
+The first time a thumb is requested, the image will not be present so the `.htaccess` rule will trigger `create.php`
 which generates the image and saves it in the correct location.  Future calls don't load PHP at all
 (for best performance).
 
@@ -40,9 +40,9 @@ What if I want the image to be cropped to a specific size?
 OK, how do I install this thing?
 --------------------------------
 
-1. Create a `thumb` folder under the (public) root of your site.
+1. Create a `/thumb/` folder under the (public) root of your site.
 
-2. Download this repo and extract into your `thumb` folder
+2. [Download this repo](https://github.com/YumpDigital/Yump-Thumbnailer/archive/master.zip) and extract into your `/thumb/` folder
 
 3. Start updating your image tags as per above
 
@@ -54,7 +54,7 @@ If your document root is in a non-standard place, you may need to update where t
 Gotcha
 ------
 
-Once a thumbnail is created, it will NEVER be recreated, unless the thumb is deleted. If you suspect that the original images may be updated at some point, you might need a workaround for this.
+Once a thumbnail is created, it will NEVER be recreated, unless the thumb is deleted. If you suspect that the original images may be updated at some point, you might need to think through a workaround for this (either delete the cached thumbnail or give the updated image a new name).
 
 
 Credits
