@@ -60,7 +60,7 @@ Once a thumbnail is created, it will NEVER be recreated, unless the thumb is del
 Credits
 -------
 
-By Simon East ([@SimoEast](https://twitter.com/SimoEast)), 2012
+By Simon East ([@SimoEast](https://twitter.com/SimoEast)), 2012 for [yump.com.au](https://yump.com.au/)
 
 
 Licence
