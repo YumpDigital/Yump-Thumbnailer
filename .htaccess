@@ -1,0 +1,10 @@
+# Here is the magic!
+# If the file already exists, Apache will serve it directly
+# If it doesn't, we rewrite the request to create.php which will create the image and save into the cache folder
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    # RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule (.*) create.php?url=$1 [QSA,L]
+</IfModule>
