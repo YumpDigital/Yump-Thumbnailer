@@ -19,6 +19,12 @@
  *            |
  *            Size of thumbnail
  * 
+ * The thumbnailer can also load images from a remote server by appending the FULL URL but dropping the colon:
+ * 
+ *  /thumb/200x100/fit/https//remote-site.com/images/myimage.jpg
+ *  
+ * The domain MUST be placed in the $ALLOWED_SITES array below for this to work.
+ * 
  * The first time a thumb is requested, the file will not be present so .htaccess will call this script
  * which generates the image and saves it in the correct location.  Future calls don't load PHP at all
  * (for best performance).
@@ -26,6 +32,16 @@
  * TimThumb parameters are explained here:
  * http://www.binarymoon.co.uk/2012/02/complete-timthumb-parameters-guide/
  */
+
+
+//---------------------------------- SETTINGS ---------------------------------------------------
+// Normally this script does NOT permit loading images from a remote server,
+// but if this functionality is required, a whitelist of domain names can be specified here
+$ALLOWED_SITES = [
+	// Example:
+	// 'thankyou-tyi.s3-ap-southeast-2.amazonaws.com',
+];
+//-----------------------------------------------------------------------------------------------
 
 // We originally used the $_GET querystring to find the URL, however filenames with an "&" sign got truncated
 // 'QUERY_STRING' gives us the full thing, but with "url=" at the start which we strip out
@@ -39,12 +55,16 @@ $url = preg_replace('/^url=/i', '', $url);
 $url = explode('/', $url);						// split URL on slashes
 $size = explode('x', $url[0]);					// eg. 180x180
 $method = $url[1];								// eg. crop
-$path = implode('/', array_slice($url, 2));		// eg. themes/default/img/briefcase-icon.png
+$isRemoteUrl = preg_match('/^https?$/', $url[2]);
+$path = $isRemoteUrl
+	? $url[2] . '://' . implode('/', array_slice($url, 3))	// eg. 'https://domain/img/briefcase-icon.png'
+	: '/' . implode('/', array_slice($url, 2));				// eg. /themes/default/img/briefcase-icon.png
 
 //---------- TimThumb Resizing/Cropping (if file actually exists) -------------------------------
-if (is_file("../$path")) {
+if ($isRemoteUrl || is_file("..$path")) {
+	
 	// Set $_GET parameters correctly (how TimThumb likes them)
-	$_GET['src'] = '/' . $path;
+	$_GET['src'] = $path;
 	$_GET['w'] = $size[0];
 	$_GET['h'] = $size[1];
 	$_GET['q'] = 93;								// quality
@@ -56,7 +76,11 @@ if (is_file("../$path")) {
 	if ($method == 'cropFromBottom') $_GET['a'] = 'b';
 
 	// TimThumb settings
-	define('ALLOW_EXTERNAL', false);
+	define('ALLOW_EXTERNAL', $isRemoteUrl);
+	
+	if ($isRemoteUrl)
+		set_time_limit(150);
+	
 	// define ('DEBUG_ON', true);
 	// define ('DEBUG_LEVEL', 2);
 	// define('FILE_CACHE_ENABLED', false);
@@ -75,6 +99,7 @@ if (is_file("../$path")) {
 	
 //-------- If file is missing, download placeholder image from placehold.it and cache it locally -------------------
 } else {
+	
 	$size = $url[0];
 	$localGifLocation = "$size/placeholder.gif";
 	if (file_exists($localGifLocation)) {
@@ -93,6 +118,7 @@ if (is_file("../$path")) {
 			echo 'Oops, image was NOT FOUND and we also couldn\'t load a placeholder from placehold.it';
 		}
 	}
+	
 }
 
 
